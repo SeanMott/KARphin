@@ -63,6 +63,9 @@ enum MeleeLagReductionCode
 
 struct SConfig : NonCopyable
 {
+	//the GC port we are using
+	uint8_t GCPort = 0;
+
 	// Wii Devices
 	bool m_WiiSDCard;
 	bool m_WiiKeyboard;
