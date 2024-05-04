@@ -1,8 +1,8 @@
-# Dolphin - A GameCube and Wii Emulator
+# KARphin - A ~~GameCube and Wii~~ Kirby Air Ride Emulator
 
-[Homepage]() | [Discord]()
+[Homepage](https://karnetplay.bytesthedust.company/) | [Discord](http://discord.gg/p3rGrcr)
 
-KARphin is an emulator for ~~running GameCube and Wii games~~ Kirby Air Ride on Windows,
+KARphin is an emulator for running ~~GameCube and Wii games~~ Kirby Air Ride on Windows,
 Linux, macOS, and recent Android devices. It's licensed under the terms
 of the GNU General Public License, version 2 or later (GPLv2+).
 
@@ -65,7 +65,7 @@ Uninstalling has also been moved to it's own set of folders. This is you didn't 
 
 * Hey Now, my willing test subject and feedback-er person during my rabbles at every hour of the night as I spammed his DMs with KARphin stuff.
 
-* Kinix, our resident admin of the KAR Discord and adament supporter of this insane idea. I still owe ya a beer buddy.
+* Kinix, our resident admin of the [KAR Discord](http://discord.gg/p3rGrcr) and adament supporter of this insane idea. I still owe ya a beer buddy.
 
 * Support PVP and Taco, my other beta testers.
 
