@@ -37,7 +37,7 @@ public:
 	bool Exist(u32 address, u32 data) const;
 };
 
-void SetActiveCodes(const std::vector<GeckoCode>& gcodes);
+void SetActiveCodes(std::vector<GeckoCode>& gcodes);
 bool RunActiveCodes();
 void RunCodeHandler();
 

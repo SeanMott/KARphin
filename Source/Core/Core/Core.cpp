@@ -500,6 +500,7 @@ void EmuThread()
 	}
 
 	OSD::AddMessage("Dolphin " + video_backend->GetName() + " Video Backend.", 5000);
+	OSD::AddMessage("GCPort: " + std::to_string(SConfig::GetInstance().GCPort), 5000);
 
 	if (cpu_info.HTT)
 		SConfig::GetInstance().bDSPThread = cpu_info.num_cores > 4;

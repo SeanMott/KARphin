@@ -384,6 +384,9 @@ bool BootCore(const std::string& _rFilename)
 		config_cache.bSetEXIDevice[1] = true;
         StartUp.iLagReductionCode = g_NetPlaySettings.m_LagReduction;
         StartUp.bMeleeForceWidescreen = g_NetPlaySettings.m_MeleeForceWidescreen;
+
+		StartUp.GCPort = g_NetPlaySettings.gcPort;
+		
 	}
 	else
 	{

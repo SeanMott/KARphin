@@ -89,16 +89,61 @@ static bool IsDisabledMeleeCode(const GeckoCode& code)
     return false;
 }
 
-void SetActiveCodes(const std::vector<GeckoCode>& gcodes)
+//is the code a gekko code for KAR full screen
+static bool KAR_IsFullScreenCode(const std::string& name, uint8_t& fullScreenIndex) 
+{
+	// checks what Gekko code it is
+	fullScreenIndex = 50;
+	if (name.find("P1 Fullscreen") != std::string::npos)
+		fullScreenIndex = 0;
+	else if (name.find("P2 Fullscreen") != std::string::npos)
+		fullScreenIndex = 1;
+	else if (name.find("P3 Fullscreen") != std::string::npos)
+		fullScreenIndex = 2;
+	else if (name.find("P4 Fullscreen") != std::string::npos)
+		fullScreenIndex = 3;
+
+	return (fullScreenIndex != 50 ? true : false);
+}
+
+//which code should be on
+static bool KAR_FullScreenCode_ShouldBeOn(GeckoCode &code)
+{
+	if (NetPlay::IsNetPlayRunning())
+	{
+		uint8_t GCPort = SConfig::GetInstance().GCPort;
+
+		//checks what Gekko code it is
+		uint8_t screenIndex = 0;
+		if (!KAR_IsFullScreenCode(code.name, screenIndex)) //skip since it's not a full screen code
+			return true;
+
+		//if the port and code match
+		if (screenIndex == GCPort)
+		{
+			code.enabled = true; // force it to be on
+			return true;
+		}
+		else
+		{
+			code.enabled = false; // force it to be off
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void SetActiveCodes(std::vector<GeckoCode>& gcodes)
 {
 	std::lock_guard<std::mutex> lk(active_codes_lock);
 
 	active_codes.clear();
 
 	// add enabled codes
-	for (const GeckoCode& gecko_code : gcodes)
+	for (GeckoCode& gecko_code : gcodes)
 	{        
-		if ((gecko_code.enabled && !IsDisabledMeleeCode(gecko_code)) || IsEnabledMeleeCode(gecko_code))
+		if ((KAR_FullScreenCode_ShouldBeOn(gecko_code) && gecko_code.enabled))
 		{
 			// TODO: apply modifiers
 			// TODO: don't need description or creator string, just takin up memory
@@ -171,9 +216,9 @@ static bool InstallCodeHandler()
 
 	int i = 0;
 
-	for (const GeckoCode& active_code : active_codes)
+	for (GeckoCode& active_code : active_codes)
 	{
-		if ((active_code.enabled && !IsDisabledMeleeCode(active_code)) || IsEnabledMeleeCode(active_code))
+		if ((KAR_FullScreenCode_ShouldBeOn(active_code) && active_code.enabled))
 		{
 			for (const GeckoCode::Code& code : active_code.codes)
 			{

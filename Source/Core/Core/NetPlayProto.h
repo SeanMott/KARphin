@@ -28,6 +28,8 @@ struct NetSettings
 
     MeleeLagReductionCode m_LagReduction;
     bool m_MeleeForceWidescreen;
+
+	uint8_t gcPort;
 };
 
 extern NetSettings g_NetPlaySettings;

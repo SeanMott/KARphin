@@ -1007,6 +1007,11 @@ void NetPlayClient::UpdateDevices()
 			{
 				SerialInterface::AddDevice(SIDEVICE_GC_CONTROLLER, pad);
 			}
+
+			// updates the GC in SConfig
+			SConfig::GetInstance().GCPort = pad;
+			g_NetPlaySettings.gcPort = pad;	
+
 			local_pad++;
 		}
 		else if (player_id > 0)

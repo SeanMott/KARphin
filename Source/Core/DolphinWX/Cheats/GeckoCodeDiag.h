@@ -29,7 +29,7 @@ public:
 
 	void LoadCodes(const IniFile& globalIni, const IniFile& localIni, const std::string& gameid = "",
 		bool checkRunning = false);
-	const std::vector<GeckoCode>& GetCodes() const { return m_gcodes; }
+	std::vector<GeckoCode>& GetCodes()  { return m_gcodes; }
 protected:
 	void UpdateInfoBox(wxCommandEvent&);
 	void ToggleCode(wxCommandEvent& evt);

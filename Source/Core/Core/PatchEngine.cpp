@@ -226,7 +226,8 @@ void Shutdown()
 	onFrame.clear();
 	speedHacks.clear();
 	ActionReplay::ApplyCodes({});
-	Gecko::SetActiveCodes({});
+	std::vector<Gecko::GeckoCode> codes;
+	Gecko::SetActiveCodes(codes);
 }
 
 }  // namespace
