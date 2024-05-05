@@ -151,6 +151,9 @@ private:
     wxChoice* m_lag_reduction_choice;
     wxCheckBox* m_widescreen_force_chkbox;
 
+	// should the auto full screen code injector be disabled
+	wxCheckBox *checkBox_disableAutoFullScreenCodeInjector;
+
 	wxSpinCtrl* m_player_padbuf_spin;
     wxSpinCtrl* m_minimum_padbuf_spin;
 

@@ -109,6 +109,11 @@ static bool KAR_IsFullScreenCode(const std::string& name, uint8_t& fullScreenInd
 //which code should be on
 static bool KAR_FullScreenCode_ShouldBeOn(GeckoCode &code)
 {
+	//if the full screen override is disabled
+	if (SConfig::GetInstance().KARCodeInjector_disableFullScreenCodeAutoInjection)
+		return true;
+
+
 	if (NetPlay::IsNetPlayRunning())
 	{
 		uint8_t GCPort = SConfig::GetInstance().GCPort;
@@ -142,8 +147,15 @@ void SetActiveCodes(std::vector<GeckoCode>& gcodes)
 
 	// add enabled codes
 	for (GeckoCode& gecko_code : gcodes)
-	{        
-		if ((KAR_FullScreenCode_ShouldBeOn(gecko_code) && gecko_code.enabled))
+	{       
+		//skips the netplay Gekko Code injections, if we're not in netplay
+		bool codeShouldBeOn = true;
+		if (NetPlay::IsNetPlayRunning())
+		{
+			codeShouldBeOn = KAR_FullScreenCode_ShouldBeOn(gecko_code);
+		}
+
+		if ((codeShouldBeOn && gecko_code.enabled))
 		{
 			// TODO: apply modifiers
 			// TODO: don't need description or creator string, just takin up memory
@@ -218,7 +230,14 @@ static bool InstallCodeHandler()
 
 	for (GeckoCode& active_code : active_codes)
 	{
-		if ((KAR_FullScreenCode_ShouldBeOn(active_code) && active_code.enabled))
+		// skips the netplay Gekko Code injections, if we're not in netplay
+		//bool codeShouldBeOn = false;
+		//if (NetPlay::IsNetPlayRunning())
+		//{
+		//	codeShouldBeOn = KAR_FullScreenCode_ShouldBeOn(active_code);
+		//}
+
+		if ((/*codeShouldBeOn &&*/ active_code.enabled))
 		{
 			for (const GeckoCode::Code& code : active_code.codes)
 			{

@@ -63,6 +63,8 @@ enum MeleeLagReductionCode
 
 struct SConfig : NonCopyable
 {
+	bool KARCodeInjector_disableFullScreenCodeAutoInjection = false;  // is the code injector for auto full screens disabled
+
 	//the GC port we are using
 	uint8_t GCPort = 0;
 

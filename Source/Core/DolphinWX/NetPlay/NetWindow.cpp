@@ -316,11 +316,15 @@ wxSizer* NetPlayDialog::CreateBottomGUI(wxWindow* parent)
 	}
 
 	m_record_chkbox = new wxCheckBox(parent, wxID_ANY, _("Record inputs"));
+	
+	// should the auto full screen code injector be disabled
+	checkBox_disableAutoFullScreenCodeInjector = new wxCheckBox(parent, wxID_ANY, _("Disable Auto Full Screen Code Injector"));
 
 	wxButton* quit_btn = new wxButton(parent, wxID_ANY, _("Quit Netplay"));
 	quit_btn->Bind(wxEVT_BUTTON, &NetPlayDialog::OnQuit, this);
 
 	bottom_szr->Add(m_record_chkbox, 0, wxALIGN_CENTER_VERTICAL);
+	bottom_szr->Add(checkBox_disableAutoFullScreenCodeInjector, 0, wxALIGN_CENTER_VERTICAL);
 
 	bottom_szr->AddStretchSpacer();
 	bottom_szr->Add(quit_btn, 0, wxALIGN_CENTER_VERTICAL);
