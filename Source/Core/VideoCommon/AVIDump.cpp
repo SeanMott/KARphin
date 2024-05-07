@@ -136,7 +136,7 @@ bool AVIDump::CreateVideoFile()
 	//create directory
 	std::string dir = "WarpDrive/" + std::string("01_32_2043_5_04_AM"); // std::ctime(&end_time));
 	std::filesystem::path fullPath = std::filesystem::absolute(std::filesystem::path(dir));
-	std::filesystem::create_directory(fullPath);
+	std::filesystem::create_directories(fullPath);
 
 	//write file data
 	std::string s_dump_path =
