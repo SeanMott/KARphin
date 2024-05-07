@@ -30,9 +30,7 @@ extern "C" {
 #include "VideoCommon/OnScreenDisplay.h"
 #include "VideoCommon/VideoConfig.h"
 
-#include <filesystem>
-#include <chrono>
-#include <ctime>  
+
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
 #define AV_CODEC_FLAG_GLOBAL_HEADER CODEC_FLAG_GLOBAL_HEADER
@@ -129,18 +127,8 @@ bool AVIDump::CreateVideoFile()
 {
 	const std::string& s_format = g_Config.sDumpFormat;
 
-	//gets system date and time
-	auto t = std::chrono::system_clock::now();
-	std::time_t end_time = std::chrono::system_clock::to_time_t(t);
-
-	//create directory
-	std::string dir = "WarpDrive/" + std::string("01_32_2043_5_04_AM"); // std::ctime(&end_time));
-	std::filesystem::path fullPath = std::filesystem::absolute(std::filesystem::path(dir));
-	std::filesystem::create_directories(fullPath);
-
-	//write file data
-	std::string s_dump_path =
-	    fullPath.string() + "/test." + s_format; // GetDumpPath(s_format);
+	//write KAR Warp Drive video file data
+	std::string s_dump_path = SConfig::GetInstance().KAR_WarpDrive_WriteDir + "/video."  + s_format;
 
 	if (s_dump_path.empty())
 		return false;
