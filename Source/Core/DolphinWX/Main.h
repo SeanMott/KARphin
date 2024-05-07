@@ -39,6 +39,9 @@ private:
 
     int FilterEvent(wxEvent& event) override;
 
+	//should netplay be auto started
+	bool m_netplayAutoStart = false;
+
 	bool m_batch_mode = false;
 	bool m_confirm_stop = false;
 	bool m_is_active = true;

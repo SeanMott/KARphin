@@ -1656,3 +1656,10 @@ void CFrame::OnChangeColumnsVisible(wxCommandEvent& event)
 	UpdateGameList();
 	SConfig::GetInstance().SaveSettings();
 }
+
+// auto starts the netplay host
+void CFrame::AutoStartNetplayHost()
+{
+	wxCommandEvent e;
+	OnNetPlay(e);
+}

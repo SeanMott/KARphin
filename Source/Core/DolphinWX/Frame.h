@@ -88,6 +88,9 @@ public:
 	wxCheatsWindow* g_CheatsWindow = nullptr;
 	TASInputDlg* g_TASInputDlg[8];
 
+	// should netplay be auto started
+	bool m_netplayAutoStart = false;
+
 	void DoPause();
 	void DoStop();
 	bool TriggerSTMPowerEvent();
@@ -112,6 +115,11 @@ public:
 	static void ConnectWiimote(int wm_idx, bool connect);
 	void UpdateTitle(const std::string& str);
 	void OpenGeneralConfiguration(wxWindowID tab_id = wxID_ANY);
+
+	//auto starts the netplay host
+	void AutoStartNetplayHost();
+	// auto starts the netplay connect
+	void AutoStartNetplayConnect();
 
 	const CGameListCtrl* GetGameListCtrl() const;
 	wxMenuBar* GetMenuBar() const override;

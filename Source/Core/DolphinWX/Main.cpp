@@ -228,7 +228,31 @@ void DolphinApp::OnInitCmdLine(wxCmdLineParser& parser)
 			 wxCMD_LINE_PARAM_OPTIONAL},
 			{wxCMD_LINE_OPTION, "u", "user", "User folder path", wxCMD_LINE_VAL_STRING,
 			 wxCMD_LINE_PARAM_OPTIONAL},
-			{wxCMD_LINE_NONE, nullptr, nullptr, nullptr, wxCMD_LINE_VAL_NONE, 0} };
+
+			//netplay flags
+			{wxCMD_LINE_OPTION, "n", "netplay", "Tells Dolphin to auto start netplay as either a host or client", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+
+			{wxCMD_LINE_OPTION, "nn", "netplay-nickname", "Sets the online nick name",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "nh", "netplay-hostcode", "Sets the host code to connect to (Traversal Net Mode Only)",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "ni", "netplay-ip", "Sets the IP to connect to (Direct Net Mode Only)",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "ncp", "netplay-connectport", "Sets the port to connect to as a client",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "nhp", "netplay-hostport", "Sets the port to use as a host to allow traffic in",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "ng", "netplay-game", "Sets the game to play in netplay mode (defaults to Hack Pack KAR)",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "npf", "netplay-shouldportforward", "Sets if we should port forward the host port",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "nlp", "netplay-listenport", "Sets the port we should force to listen on (defaults to not used)",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+	  {wxCMD_LINE_OPTION, "nm", "netplay-netMode", "Sets the Net Mode, either Traversal to use a STUN server and host code to connect. Or Direct to use a IP and target the machine directly.",
+	   wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+
+	   //end of flags
+		{wxCMD_LINE_NONE, nullptr, nullptr, nullptr, wxCMD_LINE_VAL_NONE, 0} };
 
 	parser.SetDesc(desc);
 }
@@ -288,6 +312,41 @@ bool DolphinApp::OnCmdLineParsed(wxCmdLineParser& parser)
 	m_select_audio_emulation = parser.Found("audio_emulation", &m_audio_emulation_name);
 	m_play_movie = parser.Found("movie", &m_movie_file);
 	parser.Found("user", &m_user_path);
+
+	wxString hostOrClient = "";
+	m_netplayAutoStart = parser.Found("netplay", &hostOrClient);
+
+	//writes netplay ini file data
+	if (m_netplayAutoStart)
+	{
+		IniFile inifile;
+		inifile.Load(File::GetUserPath(F_DOLPHINCONFIG_IDX));
+		IniFile::Section &netplay_section = *inifile.GetOrCreateSection("NetPlay");
+
+		wxString temp = "";
+		if (parser.Found("netplay-nickname", &temp))
+			netplay_section.Set("Nickname", &temp);
+		if (parser.Found("netplay-hostcode", &temp))
+			netplay_section.Set("HostCode", &temp);
+		if (parser.Found("netplay-ip", &temp))
+			netplay_section.Set("Address", &temp);
+		if (parser.Found("netplay-connectport", &temp))
+			netplay_section.Set("ConnectPort", &temp);
+		if (parser.Found("netplay-hostport", &temp))
+			netplay_section.Set("HostPort", &temp);
+		if (parser.Found("netplay-game", &temp))
+			netplay_section.Set("SelectedHostGame", &temp);
+
+#ifdef USE_UPNP
+		if (parser.Found("netplay-shouldportforward", &temp))
+			netplay_section.Set("UseUPNP", &temp);
+#endif
+
+		if (parser.Found("netplay-listenport", &temp))
+			netplay_section.Set("ListenPort", &temp);
+		if (parser.Found("netplay-netMode", &temp))
+			netplay_section.Set("TraversalChoice", &temp);
+	}
 
 	return true;
 }
@@ -351,11 +410,13 @@ void DolphinApp::AfterInit()
 			}
 		}
 	}
+
 	// First check if we have an exec command line.
 	else if (m_load_file && !m_file_to_load.empty())
 	{
 		main_frame->BootGame(WxStrToStr(m_file_to_load));
 	}
+	
 	// If we have selected Automatic Start, start the default ISO,
 	// or if no default ISO exists, start the last loaded ISO
 	else if (main_frame->g_pCodeWindow)
@@ -365,6 +426,13 @@ void DolphinApp::AfterInit()
 			main_frame->BootGame("");
 		}
 	}
+
+	//if we have executed netplay
+	main_frame->m_netplayAutoStart = m_netplayAutoStart;
+
+	// opens netplay
+	if (m_netplayAutoStart)
+		main_frame->AutoStartNetplayHost();
 }
 
 void DolphinApp::OnActivate(wxActivateEvent& ev)

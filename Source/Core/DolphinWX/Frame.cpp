@@ -305,10 +305,11 @@ static void SignalHandler(int)
 }
 #endif
 
-CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, wxRect geometry,
-	bool use_debugger, bool batch_mode, bool show_log_window, long style)
-	: CRenderFrame(parent, id, title, wxDefaultPosition, wxSize(800, 600), style),
-	UseDebugger(use_debugger), m_bBatchMode(batch_mode)
+CFrame::CFrame(wxFrame *parent, wxWindowID id, const wxString &title, wxRect geometry, bool use_debugger,
+               bool batch_mode, bool show_log_window, long style)
+    : CRenderFrame(parent, id, title, wxDefaultPosition, wxSize(800, 600), style)
+    , UseDebugger(use_debugger)
+    , m_bBatchMode(batch_mode)
 {
 	BindEvents();
 
@@ -346,10 +347,10 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, wxRect geo
 	m_Panel = new wxPanel(this, IDM_MPANEL, wxDefaultPosition, wxDefaultSize, 0);
 
 	m_GameListCtrl = new CGameListCtrl(m_Panel, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-		wxLC_REPORT | wxSUNKEN_BORDER | wxLC_ALIGN_LEFT);
+	                                   wxLC_REPORT | wxSUNKEN_BORDER | wxLC_ALIGN_LEFT);
 	m_GameListCtrl->Bind(wxEVT_LIST_ITEM_ACTIVATED, &CFrame::OnGameListCtrlItemActivated, this);
 
-	wxBoxSizer* sizerPanel = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizerPanel = new wxBoxSizer(wxHORIZONTAL);
 	sizerPanel->Add(m_GameListCtrl, 1, wxEXPAND | wxALL);
 	m_Panel->SetSizer(sizerPanel);
 	// ---------------
@@ -358,22 +359,22 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, wxRect geo
 	m_Mgr = new wxAuiManager(this, wxAUI_MGR_DEFAULT | wxAUI_MGR_LIVE_RESIZE);
 
 	m_Mgr->AddPane(m_Panel, wxAuiPaneInfo()
-		.Name("Pane 0")
-		.Caption("Pane 0")
-		.PaneBorder(false)
-		.CaptionVisible(false)
-		.Layer(0)
-		.Center()
-		.Show());
+	                            .Name("Pane 0")
+	                            .Caption("Pane 0")
+	                            .PaneBorder(false)
+	                            .CaptionVisible(false)
+	                            .Layer(0)
+	                            .Center()
+	                            .Show());
 	if (!g_pCodeWindow)
 		m_Mgr->AddPane(CreateEmptyNotebook(), wxAuiPaneInfo()
-			.Name("Pane 1")
-			.Caption(_("Logging"))
-			.CaptionVisible(true)
-			.Layer(0)
-			.FloatingSize(wxSize(600, 350))
-			.CloseButton(true)
-			.Hide());
+		                                          .Name("Pane 1")
+		                                          .Caption(_("Logging"))
+		                                          .CaptionVisible(true)
+		                                          .Layer(0)
+		                                          .FloatingSize(wxSize(600, 350))
+		                                          .CloseButton(true)
+		                                          .Hide());
 	AuiFullscreen = m_Mgr->SavePerspective();
 
 	if (!SConfig::GetInstance().m_InterfaceToolbar)
@@ -409,8 +410,7 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, wxRect geo
 	// Setup the window size.
 	// This has to be done here instead of in Main because the Show() happens here.
 	SetMinSize(FromDIP(wxSize(400, 300)));
-	WxUtils::SetWindowSizeAndFitToScreen(this, geometry.GetPosition(), geometry.GetSize(),
-		FromDIP(wxSize(800, 600)));
+	WxUtils::SetWindowSizeAndFitToScreen(this, geometry.GetPosition(), geometry.GetSize(), FromDIP(wxSize(800, 600)));
 
 	// Start debugging maximized (Must be after the window has been positioned)
 	if (UseDebugger)
@@ -430,7 +430,7 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, wxRect geo
 
 #if defined(HAVE_XRANDR) && HAVE_XRANDR
 	m_XRRConfig = new X11Utils::XRRConfiguration(X11Utils::XDisplayFromHandle(GetHandle()),
-		X11Utils::XWindowFromHandle(GetHandle()));
+	                                             X11Utils::XWindowFromHandle(GetHandle()));
 #endif
 
 	// Connect event handlers
@@ -463,6 +463,7 @@ CFrame::CFrame(wxFrame* parent, wxWindowID id, const wxString& title, wxRect geo
 	SetConsoleCtrlHandler(s_ctrl_handler, TRUE);
 #endif
 }
+
 // Destructor
 CFrame::~CFrame()
 {
@@ -541,6 +542,8 @@ void CFrame::OnActive(wxActivateEvent& event)
 		}
 	}
 	event.Skip();
+
+	
 }
 
 void CFrame::OnClose(wxCloseEvent& event)
@@ -765,6 +768,7 @@ bool CFrame::RendererHasFocus()
 {
 	if (m_RenderParent == nullptr)
 		return false;
+	
 	return m_bRendererHasFocus;
 }
 
@@ -1169,6 +1173,8 @@ void CFrame::DoFullscreen(bool enable_fullscreen)
 		m_RenderFrame->ShowFullScreen(enable_fullscreen, wxFULLSCREEN_ALL);
 		m_RenderFrame->Raise();
 	}
+
+	
 }
 
 void CFrame::DoExclusiveFullscreen(bool enable_fullscreen)

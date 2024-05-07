@@ -320,12 +320,19 @@ void NetPlaySetupFrame::OnHost(wxCommandEvent&)
 
 void NetPlaySetupFrame::DoHost()
 {
+	//get the game list and update it
+	m_game_list = main_frame->GetGameListCtrl();
+	NetPlayDialog::FillWithGameNames(m_game_lbox, *m_game_list);
+	
 	if (m_game_lbox->GetSelection() == wxNOT_FOUND)
 	{
-		WxUtils::ShowErrorDialog(_("You must choose a game!"));
+		//only display it if we don't execute via the command line, since we have to cheat and run this once cuz Dolphin is dumb
+		if (!main_frame->m_netplayAutoStart)
+			WxUtils::ShowErrorDialog(_("You must choose a game!"));
+		
 		return;
 	}
-
+	
 	IniFile ini_file;
 	const std::string dolphin_ini = File::GetUserPath(F_DOLPHINCONFIG_IDX);
 	ini_file.Load(dolphin_ini);
