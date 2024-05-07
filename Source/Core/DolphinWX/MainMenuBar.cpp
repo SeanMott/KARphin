@@ -98,9 +98,9 @@ wxMenu *MainMenuBar::CreateKARMenu() const
 	KAR_menu->AppendSeparator();
 	KAR_menu->AppendCheckItem(IDM_TOGGLE_CREATE_WARP_DRIVE_REPLAY, _("Create Replays"));
 	KAR_menu->Check(IDM_TOGGLE_CREATE_WARP_DRIVE_REPLAY, config_instance.isRecordingReplay_WarpDrive);
-	KAR_menu->AppendCheckItem(IDM_TOGGLE_DUMP_FRAMES, _("Dump Frames"));
+	KAR_menu->AppendCheckItem(IDM_TOGGLE_DUMP_FRAMES, _("Record Video"));
 	KAR_menu->Check(IDM_TOGGLE_DUMP_FRAMES, config_instance.m_DumpFrames);
-	KAR_menu->AppendCheckItem(IDM_TOGGLE_DUMP_AUDIO, _("Dump Audio"));
+	KAR_menu->AppendCheckItem(IDM_TOGGLE_DUMP_AUDIO, _("Record Audio"));
 	KAR_menu->Check(IDM_TOGGLE_DUMP_AUDIO, config_instance.m_DumpAudio);
 
 	return KAR_menu;
