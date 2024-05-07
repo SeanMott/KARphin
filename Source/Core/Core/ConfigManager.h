@@ -63,6 +63,9 @@ enum MeleeLagReductionCode
 
 struct SConfig : NonCopyable
 {
+	//KAR Flags
+	bool isRecordingReplay_WarpDrive = true; // is a replay recording
+
 	// Wii Devices
 	bool m_WiiSDCard;
 	bool m_WiiKeyboard;

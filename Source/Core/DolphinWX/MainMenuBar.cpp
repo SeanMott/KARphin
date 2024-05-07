@@ -42,6 +42,7 @@ void MainMenuBar::Refresh(bool erase_background, const wxRect* rect)
 void MainMenuBar::AddMenus()
 {
 	Append(CreateFileMenu(), _("&File"));
+	Append(CreateKARMenu(), _("&KAR"));
 	Append(CreateEmulationMenu(), _("&Emulation"));
 	Append(CreateMovieMenu(), _("&Movie"));
 	Append(CreateOptionsMenu(), _("&Options"));
@@ -86,6 +87,23 @@ wxMenu* MainMenuBar::CreateFileMenu() const
 	file_menu->Append(wxID_EXIT, _("E&xit") + "\tAlt+F4");
 
 	return file_menu;
+}
+
+wxMenu *MainMenuBar::CreateKARMenu() const
+{
+	auto *const KAR_menu = new wxMenu;
+	const auto &config_instance = SConfig::GetInstance();
+
+	//opts into creating KAR Replays (Warp Drives)
+	KAR_menu->AppendSeparator();
+	KAR_menu->AppendCheckItem(IDM_TOGGLE_CREATE_WARP_DRIVE_REPLAY, _("Create Replays"));
+	KAR_menu->Check(IDM_TOGGLE_CREATE_WARP_DRIVE_REPLAY, config_instance.isRecordingReplay_WarpDrive);
+	KAR_menu->AppendCheckItem(IDM_TOGGLE_DUMP_FRAMES, _("Dump Frames"));
+	KAR_menu->Check(IDM_TOGGLE_DUMP_FRAMES, config_instance.m_DumpFrames);
+	KAR_menu->AppendCheckItem(IDM_TOGGLE_DUMP_AUDIO, _("Dump Audio"));
+	KAR_menu->Check(IDM_TOGGLE_DUMP_AUDIO, config_instance.m_DumpAudio);
+
+	return KAR_menu;
 }
 
 wxMenu* MainMenuBar::CreateEmulationMenu() const
@@ -156,10 +174,10 @@ wxMenu* MainMenuBar::CreateMovieMenu() const
 	movie_menu->AppendCheckItem(IDM_SHOW_RTC_DISPLAY, _("Show System Clock"));
 	movie_menu->Check(IDM_SHOW_RTC_DISPLAY, config_instance.m_ShowRTC);
 	movie_menu->AppendSeparator();
-	movie_menu->AppendCheckItem(IDM_TOGGLE_DUMP_FRAMES, _("Dump Frames"));
-	movie_menu->Check(IDM_TOGGLE_DUMP_FRAMES, config_instance.m_DumpFrames);
-	movie_menu->AppendCheckItem(IDM_TOGGLE_DUMP_AUDIO, _("Dump Audio"));
-	movie_menu->Check(IDM_TOGGLE_DUMP_AUDIO, config_instance.m_DumpAudio);
+	//movie_menu->AppendCheckItem(IDM_TOGGLE_DUMP_FRAMES, _("Dump Frames"));
+	//movie_menu->Check(IDM_TOGGLE_DUMP_FRAMES, config_instance.m_DumpFrames);
+	//movie_menu->AppendCheckItem(IDM_TOGGLE_DUMP_AUDIO, _("Dump Audio"));
+	//movie_menu->Check(IDM_TOGGLE_DUMP_AUDIO, config_instance.m_DumpAudio);
 
 	return movie_menu;
 }

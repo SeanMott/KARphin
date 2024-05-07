@@ -30,6 +30,7 @@ private:
   void BindEvents();
 
   wxMenu* CreateFileMenu() const;
+  wxMenu *CreateKARMenu() const;
   wxMenu* CreateEmulationMenu() const;
   wxMenu* CreateMovieMenu() const;
   wxMenu* CreateOptionsMenu() const;

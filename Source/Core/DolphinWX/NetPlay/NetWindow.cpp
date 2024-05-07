@@ -871,7 +871,8 @@ void NetPlayDialog::OnPlayerSelect(wxCommandEvent&)
 
 bool NetPlayDialog::IsRecording()
 {
-	return m_record_chkbox->GetValue();
+	return SConfig::GetInstance().isRecordingReplay_WarpDrive;
+	//return m_record_chkbox->GetValue();
 }
 
 void NetPlayDialog::OnCopyIP(wxCommandEvent&)

@@ -30,6 +30,10 @@ extern "C" {
 #include "VideoCommon/OnScreenDisplay.h"
 #include "VideoCommon/VideoConfig.h"
 
+#include <filesystem>
+#include <chrono>
+#include <ctime>  
+
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
 #define AV_CODEC_FLAG_GLOBAL_HEADER CODEC_FLAG_GLOBAL_HEADER
 #define av_frame_alloc avcodec_alloc_frame
@@ -101,8 +105,7 @@ static std::string GetDumpPath(const std::string& format)
 	if (!g_Config.sDumpPath.empty())
 		return g_Config.sDumpPath;
 
-	std::string s_dump_path = File::GetUserPath(D_DUMPFRAMES_IDX) + "framedump" +
-		std::to_string(s_file_index) + "." + format;
+	std::string s_dump_path = File::GetUserPath(D_DUMPFRAMES_IDX) + std::to_string(s_file_index) + "." + format;
 
 	// Ask to delete file
 	if (File::Exists(s_dump_path))
@@ -126,7 +129,18 @@ bool AVIDump::CreateVideoFile()
 {
 	const std::string& s_format = g_Config.sDumpFormat;
 
-	std::string s_dump_path = GetDumpPath(s_format);
+	//gets system date and time
+	auto t = std::chrono::system_clock::now();
+	std::time_t end_time = std::chrono::system_clock::to_time_t(t);
+
+	//create directory
+	std::string dir = "WarpDrive/" + std::string("01_32_2043_5_04_AM"); // std::ctime(&end_time));
+	std::filesystem::path fullPath = std::filesystem::absolute(std::filesystem::path(dir));
+	std::filesystem::create_directory(fullPath);
+
+	//write file data
+	std::string s_dump_path =
+	    fullPath.string() + "/test." + s_format; // GetDumpPath(s_format);
 
 	if (s_dump_path.empty())
 		return false;

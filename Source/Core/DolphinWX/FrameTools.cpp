@@ -1499,6 +1499,13 @@ void CFrame::UpdateGUI()
 		GetToolBar()->EnableTool(IDM_PLAY, !Stopping);
 		GetMenuBar()->FindItem(IDM_PLAY)->Enable(!Stopping);
 
+		//if the replay should be played
+		if (SConfig::GetInstance().isRecordingReplay_WarpDrive)
+		{
+			wxCommandEvent e;
+			OnRecord(e);
+		}
+
 		// Reset game loading flag
 		m_bGameLoading = false;
 	}
