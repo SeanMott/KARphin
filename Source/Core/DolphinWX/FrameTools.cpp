@@ -84,6 +84,8 @@
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoConfig.h"
 
+#include <filesystem>
+
 class InputConfig;
 class wxFrame;
 
@@ -949,16 +951,28 @@ void CFrame::DoRecordingSave()
 	if (!paused)
 		DoPause();
 
-	wxString path =
-		wxFileSelector(_("Select The Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
-			_("Dolphin TAS Movies (*.dtm)") +
-			wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
-			wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT, this);
+	// gets system date and time
+	auto t = std::chrono::system_clock::now();
+	std::time_t end_time = std::chrono::system_clock::to_time_t(t);
 
-	if (path.IsEmpty())
-		return;
+	// create directory
+	std::string dir = "WarpDrive/" + std::string("01_32_2043_5_04_AM"); // std::ctime(&end_time));
+	std::filesystem::path fullPath = std::filesystem::absolute(std::filesystem::path(dir));
+	std::filesystem::create_directories(fullPath);
 
-	Movie::SaveRecording(WxStrToStr(path));
+	// write file data
+	std::string s_dump_path = fullPath.string() + "/input.dtm";
+
+	//wxString path =
+	//	wxFileSelector(_("Select The Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
+	//		_("Dolphin TAS Movies (*.dtm)") +
+	//		wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
+	//		wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT, this);
+
+	//if (path.IsEmpty())
+	//	return;
+
+	Movie::SaveRecording(s_dump_path);
 
 	if (!paused)
 		DoPause();
