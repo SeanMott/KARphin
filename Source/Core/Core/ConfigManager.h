@@ -63,6 +63,11 @@ enum MeleeLagReductionCode
 
 struct SConfig : NonCopyable
 {
+	//KAR Flags
+	bool isRecordingReplay_WarpDrive = true; // is a replay recording
+	std::string KAR_WarpDrive_WriteDir = ""; //the directory to write KAR Warp Drive data into
+	std::string KAR_WarpDrive_WriteFileName = ""; //the file name for KAR Warp Drive data
+
 	// Wii Devices
 	bool m_WiiSDCard;
 	bool m_WiiKeyboard;

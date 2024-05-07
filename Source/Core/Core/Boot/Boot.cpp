@@ -39,6 +39,10 @@
 #include "DiscIO/Volume.h"
 #include "DiscIO/VolumeCreator.h"
 
+#include <filesystem>
+
+#include <ctime>
+
 bool CBoot::DVDRead(u64 dvd_offset, u32 output_address, u32 length, bool decrypt)
 {
 	std::vector<u8> buffer(length);
@@ -251,6 +255,23 @@ bool CBoot::Load_BS2(const std::string& _rBootROMFilename)
 bool CBoot::BootUp()
 {
 	SConfig& _StartupPara = SConfig::GetInstance();
+
+	//generates the directory for writing War Drive Replays
+	if (_StartupPara.isRecordingReplay_WarpDrive)
+	{
+		// gets system date and time
+		time_t now = time(0);
+		char timeBuffer[256];
+		strftime(timeBuffer, sizeof(timeBuffer), "%Y%m%d_%H%M%S", localtime(&now));
+
+		// create directory
+		std::string dir = std::string("WarpDrive/") + timeBuffer;
+		std::filesystem::path fullPath = std::filesystem::absolute(std::filesystem::path(dir));
+		std::filesystem::create_directories(fullPath);
+
+		_StartupPara.KAR_WarpDrive_WriteDir = fullPath.string();
+		_StartupPara.KAR_WarpDrive_WriteFileName = timeBuffer;
+	}
 
 	NOTICE_LOG(BOOT, "Booting %s", _StartupPara.m_strFilename.c_str());
 

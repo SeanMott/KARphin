@@ -30,6 +30,8 @@ extern "C" {
 #include "VideoCommon/OnScreenDisplay.h"
 #include "VideoCommon/VideoConfig.h"
 
+
+
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
 #define AV_CODEC_FLAG_GLOBAL_HEADER CODEC_FLAG_GLOBAL_HEADER
 #define av_frame_alloc avcodec_alloc_frame
@@ -101,8 +103,7 @@ static std::string GetDumpPath(const std::string& format)
 	if (!g_Config.sDumpPath.empty())
 		return g_Config.sDumpPath;
 
-	std::string s_dump_path = File::GetUserPath(D_DUMPFRAMES_IDX) + "framedump" +
-		std::to_string(s_file_index) + "." + format;
+	std::string s_dump_path = File::GetUserPath(D_DUMPFRAMES_IDX) + std::to_string(s_file_index) + "." + format;
 
 	// Ask to delete file
 	if (File::Exists(s_dump_path))
@@ -126,7 +127,8 @@ bool AVIDump::CreateVideoFile()
 {
 	const std::string& s_format = g_Config.sDumpFormat;
 
-	std::string s_dump_path = GetDumpPath(s_format);
+	//write KAR Warp Drive video file data
+	std::string s_dump_path = SConfig::GetInstance().KAR_WarpDrive_WriteDir + "/video."  + s_format;
 
 	if (s_dump_path.empty())
 		return false;

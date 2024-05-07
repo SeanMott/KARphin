@@ -84,6 +84,8 @@
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoConfig.h"
 
+#include <filesystem>
+
 class InputConfig;
 class wxFrame;
 
@@ -949,16 +951,10 @@ void CFrame::DoRecordingSave()
 	if (!paused)
 		DoPause();
 
-	wxString path =
-		wxFileSelector(_("Select The Recording File"), wxEmptyString, wxEmptyString, wxEmptyString,
-			_("Dolphin TAS Movies (*.dtm)") +
-			wxString::Format("|*.dtm|%s", wxGetTranslation(wxALL_FILES)),
-			wxFD_SAVE | wxFD_PREVIEW | wxFD_OVERWRITE_PROMPT, this);
+	// write file data
+	std::string s_dump_path = SConfig::GetInstance().KAR_WarpDrive_WriteDir + "/input.dtm";
 
-	if (path.IsEmpty())
-		return;
-
-	Movie::SaveRecording(WxStrToStr(path));
+	Movie::SaveRecording(s_dump_path);
 
 	if (!paused)
 		DoPause();
@@ -1498,6 +1494,13 @@ void CFrame::UpdateGUI()
 		// Game has been loaded, enable the pause button
 		GetToolBar()->EnableTool(IDM_PLAY, !Stopping);
 		GetMenuBar()->FindItem(IDM_PLAY)->Enable(!Stopping);
+
+		//if the replay should be played
+		if (SConfig::GetInstance().isRecordingReplay_WarpDrive)
+		{
+			wxCommandEvent e;
+			OnRecord(e);
+		}
 
 		// Reset game loading flag
 		m_bGameLoading = false;

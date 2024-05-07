@@ -315,12 +315,12 @@ wxSizer* NetPlayDialog::CreateBottomGUI(wxWindow* parent)
 		bottom_szr->Add(m_player_padbuf_spin, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, space5);
 	}
 
-	m_record_chkbox = new wxCheckBox(parent, wxID_ANY, _("Record inputs"));
+	//m_record_chkbox = new wxCheckBox(parent, wxID_ANY, _("Record inputs"));
 
 	wxButton* quit_btn = new wxButton(parent, wxID_ANY, _("Quit Netplay"));
 	quit_btn->Bind(wxEVT_BUTTON, &NetPlayDialog::OnQuit, this);
 
-	bottom_szr->Add(m_record_chkbox, 0, wxALIGN_CENTER_VERTICAL);
+	//bottom_szr->Add(m_record_chkbox, 0, wxALIGN_CENTER_VERTICAL);
 
 	bottom_szr->AddStretchSpacer();
 	bottom_szr->Add(quit_btn, 0, wxALIGN_CENTER_VERTICAL);
@@ -496,7 +496,7 @@ void NetPlayDialog::OnMsgStartGame()
         }
 	}
 
-	m_record_chkbox->Disable();
+	//m_record_chkbox->Disable();
 }
 
 void NetPlayDialog::OnMsgStopGame()
@@ -517,7 +517,7 @@ void NetPlayDialog::OnMsgStopGame()
             m_widescreen_force_chkbox->Enable();
         }
 	}
-	m_record_chkbox->Enable();
+	//m_record_chkbox->Enable();
 }
 
 void NetPlayDialog::OnAdjustMinimumBuffer(wxCommandEvent& event)
@@ -871,7 +871,8 @@ void NetPlayDialog::OnPlayerSelect(wxCommandEvent&)
 
 bool NetPlayDialog::IsRecording()
 {
-	return m_record_chkbox->GetValue();
+	return SConfig::GetInstance().isRecordingReplay_WarpDrive;
+	//return m_record_chkbox->GetValue();
 }
 
 void NetPlayDialog::OnCopyIP(wxCommandEvent&)
