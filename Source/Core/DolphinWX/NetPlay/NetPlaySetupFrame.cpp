@@ -123,14 +123,15 @@ void NetPlaySetupFrame::CreateGUI()
 	m_netmode_choice_dropdown->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnNetModeChoiceChange, this);
 	m_netmode_choice_dropdown->Append(_("Direct IP"));
 	m_netmode_choice_dropdown->Append(_("Room Code"));
-	m_netmode_choice_dropdown->Append(_("LAN"));
-	m_netmode_choice_dropdown->Append(_("Online Match Making"));
+	//m_netmode_choice_dropdown->Append(_("LAN"));
+	//m_netmode_choice_dropdown->Append(_("Online Match Making"));
 
 	//the network backend
 	m_netbackend_choice_dropdown = new wxChoice(panel, wxID_ANY);
 	m_netbackend_choice_dropdown->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnNetBackendChoiceChange, this);
 	m_netbackend_choice_dropdown->Append(_("Dolphin"));
-	m_netbackend_choice_dropdown->Append(_("BTD"));
+	//m_netbackend_choice_dropdown->Append(_("BTD"));
+	//m_netbackend_choice_dropdown->Append(_("Custom"));
 
 	m_trav_reset_btn = new wxButton(panel, wxID_ANY, _("Reset Net Backend Settings"));
 	m_trav_reset_btn->Bind(wxEVT_BUTTON, &NetPlaySetupFrame::OnResetNetBackend, this);
@@ -143,7 +144,7 @@ void NetPlaySetupFrame::CreateGUI()
 
 	m_nickname_text = new wxTextCtrl(panel, wxID_ANY, "Player");
 
-	m_traversal_lbl = new wxStaticText(panel, wxID_ANY, "Traversal Server");
+	m_traversal_lbl = new wxStaticText(panel, wxID_ANY, "STUN Server");
 
 	wxButton* const quit_btn = new wxButton(panel, wxID_ANY, _("Quit"));
 	quit_btn->Bind(wxEVT_BUTTON, &NetPlaySetupFrame::OnQuit, this);
