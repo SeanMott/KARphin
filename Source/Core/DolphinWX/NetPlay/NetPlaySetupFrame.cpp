@@ -31,7 +31,7 @@ wxString GetTraversalLabelText(IniFile::Section& section)
 {
 	std::string server = NetPlayLaunchConfig::GetTraversalHostFromIniConfig(section);
 	std::string port = std::to_string(NetPlayLaunchConfig::GetTraversalPortFromIniConfig(section));
-	return wxString::Format(_("Traversal Server: %s"), (server + ":" + port).c_str());
+	return wxString::Format(_("STUN Server: %s"), (server + ":" + port).c_str());
 }
 }  // Anonymous namespace
 
@@ -94,6 +94,9 @@ NetPlaySetupFrame::NetPlaySetupFrame(wxWindow* const parent, const CGameListCtrl
 			m_netmode_choice_dropdown->Select(NETMODE_CHOICE_DIRECT_IP);
 		}
 
+		m_netbackend_choice_dropdown->Select(NETWORK_BACKEND_CHOICE_DOLPHIN);
+
+
 		m_traversal_lbl->SetLabelText(GetTraversalLabelText(netplay_section));
 	}
 
@@ -102,7 +105,7 @@ NetPlaySetupFrame::NetPlaySetupFrame(wxWindow* const parent, const CGameListCtrl
 
 	//  Needs to be done last or it set up the spacing on the page correctly
 	wxCommandEvent ev;
-	OnDirectTraversalChoice(ev);
+	OnNetModeChoiceChange(ev);
 }
 
 void NetPlaySetupFrame::CreateGUI()
@@ -115,15 +118,25 @@ void NetPlaySetupFrame::CreateGUI()
 	// Connection Config
 	wxStaticText* const connectiontype_lbl = new wxStaticText(panel, wxID_ANY, _("Connection Type:"));
 
+	//the netmode
 	m_netmode_choice_dropdown = new wxChoice(panel, wxID_ANY);
-	m_netmode_choice_dropdown->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnDirectTraversalChoice, this);
+	m_netmode_choice_dropdown->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnNetModeChoiceChange, this);
 	m_netmode_choice_dropdown->Append(_("Direct IP"));
 	m_netmode_choice_dropdown->Append(_("Room Code"));
 	m_netmode_choice_dropdown->Append(_("LAN"));
 	m_netmode_choice_dropdown->Append(_("Online Match Making"));
 
-	m_trav_reset_btn = new wxButton(panel, wxID_ANY, _("Reset Traversal Settings"));
-	m_trav_reset_btn->Bind(wxEVT_BUTTON, &NetPlaySetupFrame::OnResetTraversal, this);
+	//the network backend
+	m_netbackend_choice_dropdown = new wxChoice(panel, wxID_ANY);
+	m_netbackend_choice_dropdown->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnNetBackendChoiceChange, this);
+	m_netbackend_choice_dropdown->Append(_("Dolphin"));
+	m_netbackend_choice_dropdown->Append(_("BTD"));
+
+	m_trav_reset_btn = new wxButton(panel, wxID_ANY, _("Reset Net Backend Settings"));
+	m_trav_reset_btn->Bind(wxEVT_BUTTON, &NetPlaySetupFrame::OnResetNetBackend, this);
+
+	//backend mode text
+	wxStaticText *const backend_lbl = new wxStaticText(panel, wxID_ANY, _("Net Backend:"));
 
 	// Nickname
 	wxStaticText* const nick_lbl = new wxStaticText(panel, wxID_ANY, _("Nickname:"));
@@ -139,9 +152,15 @@ void NetPlaySetupFrame::CreateGUI()
 	top_sizer->Add(connectiontype_lbl, wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
 	top_sizer->Add(WxUtils::GiveMinSizeDIP(m_netmode_choice_dropdown, wxSize(100, -1)), wxGBPosition(0, 1),
 		wxDefaultSpan, wxEXPAND);
-	top_sizer->Add(m_trav_reset_btn, wxGBPosition(0, 2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-	top_sizer->Add(nick_lbl, wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-	top_sizer->Add(WxUtils::GiveMinSizeDIP(m_nickname_text, wxSize(150, -1)), wxGBPosition(1, 1),
+
+	top_sizer->Add(m_trav_reset_btn, wxGBPosition(1, 2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
+
+	top_sizer->Add(backend_lbl, wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
+	top_sizer->Add(WxUtils::GiveMinSizeDIP(m_netbackend_choice_dropdown, wxSize(100, -1)), wxGBPosition(1, 1),
+	               wxDefaultSpan, wxEXPAND);
+	
+	top_sizer->Add(nick_lbl, wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
+	top_sizer->Add(WxUtils::GiveMinSizeDIP(m_nickname_text, wxSize(150, -1)), wxGBPosition(2, 1),
 		wxDefaultSpan, wxEXPAND);
 
 	m_notebook = CreateNotebookGUI(panel);
@@ -193,8 +212,8 @@ wxNotebook* NetPlaySetupFrame::CreateNotebookGUI(wxWindow* parent)
 		alert_lbl = new wxStaticText(
 			connect_tab, wxID_ANY,
 		                     _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
-		                       "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
-		                       "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
+		                       "1. All Gekko Codes, except full screen and local full screen codes must match!\n"
+		                       "2. All Player's must use the same version of the Hack Pack or modded ROM!\n"
 		                       "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
 		                       "\n"));
 
@@ -402,7 +421,7 @@ void NetPlaySetupFrame::DoJoin()
 	}
 }
 
-void NetPlaySetupFrame::OnResetTraversal(wxCommandEvent& event)
+void NetPlaySetupFrame::OnResetNetBackend(wxCommandEvent& event)
 {
 	IniFile inifile;
 	const std::string dolphin_ini = File::GetUserPath(F_DOLPHINCONFIG_IDX);
@@ -412,6 +431,8 @@ void NetPlaySetupFrame::OnResetTraversal(wxCommandEvent& event)
 	netplay_section.Delete("TraversalPort");
 	inifile.Save(dolphin_ini);
 
+	m_netbackend_choice_dropdown->SetSelection(NETWORK_BACKEND_CHOICE_DOLPHIN);
+
 	m_traversal_lbl->SetLabelText(GetTraversalLabelText(netplay_section));
 }
 
@@ -420,7 +441,33 @@ void NetPlaySetupFrame::OnTraversalListenPortChanged(wxCommandEvent& event)
 	m_traversal_listen_port->Enable(m_traversal_listen_port_enabled->IsChecked());
 }
 
-void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
+void NetPlaySetupFrame::OnNetBackendChoiceChange(wxCommandEvent &event)
+{
+	int sel = m_netbackend_choice_dropdown->GetSelection();
+
+	//if it's Dolphin
+	if (sel == NETWORK_BACKEND_CHOICE_DOLPHIN)
+		OnResetNetBackend(event);
+
+	//if it's Bytes The Dust
+	else if (sel == NETWORK_BACKEND_CHOICE_BTD)
+	{
+		// changes the config data
+		IniFile inifile;
+		const std::string dolphin_ini = File::GetUserPath(F_DOLPHINCONFIG_IDX);
+		inifile.Load(dolphin_ini);
+		IniFile::Section &netplay_section = *inifile.GetOrCreateSection("NetPlay");
+		netplay_section.Set("TraversalServer", NetPlayLaunchConfig::BTD_TRAVERSAL_HOST);
+		netplay_section.Set("TraversalPort", NetPlayLaunchConfig::BTD_TRAVERSAL_PORT);
+		inifile.Save(dolphin_ini);
+
+		m_traversal_lbl->SetLabelText(GetTraversalLabelText(netplay_section));
+	}
+
+	//if it's Custom
+}
+
+void NetPlaySetupFrame::OnNetModeChoiceChange(wxCommandEvent& event)
 {
 	int sel = m_netmode_choice_dropdown->GetSelection();
 	IniFile inifile;
@@ -443,10 +490,9 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 
 			alert_lbl->SetLabelText(
 			_("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
-			 "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
-			"2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
-			"3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
-			      "\n"));
+			 "1. All Gekko Codes, except full screen and local full screen codes must match!\n"
+			"2. All Player's must use the same version of the Hack Pack or modded ROM!\n"
+			"3. If DSP LLE is used, DSP ROMs must be identical between players!\n"));
 		}
 
 		// server tab
@@ -483,11 +529,10 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 
 			alert_lbl->SetLabelText(
 			    _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
-			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
-			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
-			      "3. The Host must have their port open/forwarded!\n\n"
-			      "4. If DSP LLE is used, DSP ROMs must be identical between players!\n"
-			      "\n"));
+			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n"
+			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n"
+			      "3. The Host must have their port open/forwarded!\n"
+			      "4. If DSP LLE is used, DSP ROMs must be identical between players!"));
 		}
 
 		// Server tab
@@ -522,10 +567,9 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 
 			alert_lbl->SetLabelText(
 			    _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
-			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
-			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
-			      "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
-			      "\n"));
+			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n"
+			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n"
+			      "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"));
 		}
 
 		// Server tab
@@ -560,10 +604,9 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 
 			alert_lbl->SetLabelText(
 			    _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
-			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
-			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
-			      "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
-			      "\n"));
+			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n"
+			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n"
+			      "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"));
 		}
 
 		// Server tab

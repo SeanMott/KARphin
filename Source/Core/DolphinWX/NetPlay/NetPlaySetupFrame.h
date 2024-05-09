@@ -35,7 +35,7 @@ private:
 
 	//which STUN server and general net backend are we using
 	static constexpr int NETWORK_BACKEND_CHOICE_DOLPHIN = 0;
-	static constexpr int NETWORK_BACKEND_CHOICE_BTD = 0;
+	static constexpr int NETWORK_BACKEND_CHOICE_BTD = 1;
 
 	void CreateGUI();
 	wxNotebook* CreateNotebookGUI(wxWindow* parent);
@@ -45,8 +45,9 @@ private:
 	void DoJoin();
 	void DoHost();
 	void OnQuit(wxCommandEvent& event);
-	void OnDirectTraversalChoice(wxCommandEvent& event);
-	void OnResetTraversal(wxCommandEvent& event);
+	void OnNetModeChoiceChange(wxCommandEvent& event);
+	void OnResetNetBackend(wxCommandEvent& event);
+	void OnNetBackendChoiceChange(wxCommandEvent &event);
 	void OnTraversalListenPortChanged(wxCommandEvent& event);
 	void OnKeyDown(wxKeyEvent& event);
 	void OnTabChanged(wxCommandEvent& event);
@@ -62,6 +63,7 @@ private:
 	wxTextCtrl* m_connect_hashcode_text;
 	wxStaticText * alert_lbl;
 	wxChoice* m_netmode_choice_dropdown;
+	wxChoice *m_netbackend_choice_dropdown;
 	wxStaticText* m_traversal_lbl;
 	wxButton* m_trav_reset_btn;
 	wxCheckBox* m_traversal_listen_port_enabled;

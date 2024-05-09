@@ -93,6 +93,7 @@ bool NetPlayLauncher::Join(const NetPlayJoinConfig& config)
 }
 
 const std::string NetPlayLaunchConfig::DEFAULT_TRAVERSAL_HOST = "stun.dolphin-emu.org";
+const std::string NetPlayLaunchConfig::BTD_TRAVERSAL_HOST = "stun.btd.company";
 
 std::string
 NetPlayLaunchConfig::GetTraversalHostFromIniConfig(const IniFile::Section& netplay_section)

@@ -18,8 +18,14 @@ public:
 	static u16 GetTraversalPortFromIniConfig(const IniFile::Section& netplay_section);
 	void SetDialogInfo(const IniFile::Section& section, wxWindow* parent);
 
+	//default Dolphin
 	static const std::string DEFAULT_TRAVERSAL_HOST;
 	static constexpr u16 DEFAULT_TRAVERSAL_PORT = 6262;
+
+	//Bytes The Dust
+	static const std::string BTD_TRAVERSAL_HOST;
+	static constexpr u16 BTD_TRAVERSAL_PORT = 6262;
+
 	const wxRect window_defaults{ wxDefaultCoord, wxDefaultCoord, 768, 768 - 128 };
 
 	std::string player_name;
