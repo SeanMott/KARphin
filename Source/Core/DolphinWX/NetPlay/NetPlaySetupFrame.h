@@ -27,8 +27,15 @@ private:
 	static constexpr int CONNECT_TAB = 0;
 	static constexpr int HOST_TAB = 1;
 
-	static constexpr int DIRECT_CHOICE = 0;
-	static constexpr int TRAVERSAL_CHOICE = 1;
+	//which Net Mode are we using
+	static constexpr int NETMODE_CHOICE_DIRECT_IP = 0;
+	static constexpr int NETMODE_CHOICE_FRIEND_CODE = 1;
+	static constexpr int NETMODE_CHOICE_LAN = 2;
+	static constexpr int NETMODE_CHOICE_MATCHMAKING = 3;
+
+	//which STUN server and general net backend are we using
+	static constexpr int NETWORK_BACKEND_CHOICE_DOLPHIN = 0;
+	static constexpr int NETWORK_BACKEND_CHOICE_BTD = 0;
 
 	void CreateGUI();
 	wxNotebook* CreateNotebookGUI(wxWindow* parent);
@@ -53,7 +60,8 @@ private:
 	wxTextCtrl* m_connect_port_text;
 	wxTextCtrl* m_connect_ip_text;
 	wxTextCtrl* m_connect_hashcode_text;
-	wxChoice* m_direct_traversal;
+	wxStaticText * alert_lbl;
+	wxChoice* m_netmode_choice_dropdown;
 	wxStaticText* m_traversal_lbl;
 	wxButton* m_trav_reset_btn;
 	wxCheckBox* m_traversal_listen_port_enabled;

@@ -87,11 +87,11 @@ NetPlaySetupFrame::NetPlaySetupFrame(wxWindow* const parent, const CGameListCtrl
 		netplay_section.Get("TraversalChoice", &temp, "direct");
 		if (temp == "traversal")
 		{
-			m_direct_traversal->Select(TRAVERSAL_CHOICE);
+			m_netmode_choice_dropdown->Select(NETMODE_CHOICE_FRIEND_CODE);
 		}
 		else
 		{
-			m_direct_traversal->Select(DIRECT_CHOICE);
+			m_netmode_choice_dropdown->Select(NETMODE_CHOICE_DIRECT_IP);
 		}
 
 		m_traversal_lbl->SetLabelText(GetTraversalLabelText(netplay_section));
@@ -115,10 +115,12 @@ void NetPlaySetupFrame::CreateGUI()
 	// Connection Config
 	wxStaticText* const connectiontype_lbl = new wxStaticText(panel, wxID_ANY, _("Connection Type:"));
 
-	m_direct_traversal = new wxChoice(panel, wxID_ANY);
-	m_direct_traversal->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnDirectTraversalChoice, this);
-	m_direct_traversal->Append(_("Direct Connection"));
-	m_direct_traversal->Append(_("Traversal Server"));
+	m_netmode_choice_dropdown = new wxChoice(panel, wxID_ANY);
+	m_netmode_choice_dropdown->Bind(wxEVT_CHOICE, &NetPlaySetupFrame::OnDirectTraversalChoice, this);
+	m_netmode_choice_dropdown->Append(_("Direct IP"));
+	m_netmode_choice_dropdown->Append(_("Room Code"));
+	m_netmode_choice_dropdown->Append(_("LAN"));
+	m_netmode_choice_dropdown->Append(_("Online Match Making"));
 
 	m_trav_reset_btn = new wxButton(panel, wxID_ANY, _("Reset Traversal Settings"));
 	m_trav_reset_btn->Bind(wxEVT_BUTTON, &NetPlaySetupFrame::OnResetTraversal, this);
@@ -135,7 +137,7 @@ void NetPlaySetupFrame::CreateGUI()
 
 	wxGridBagSizer* top_sizer = new wxGridBagSizer(space5, space5);
 	top_sizer->Add(connectiontype_lbl, wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-	top_sizer->Add(WxUtils::GiveMinSizeDIP(m_direct_traversal, wxSize(100, -1)), wxGBPosition(0, 1),
+	top_sizer->Add(WxUtils::GiveMinSizeDIP(m_netmode_choice_dropdown, wxSize(100, -1)), wxGBPosition(0, 1),
 		wxDefaultSpan, wxEXPAND);
 	top_sizer->Add(m_trav_reset_btn, wxGBPosition(0, 2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
 	top_sizer->Add(nick_lbl, wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
@@ -188,15 +190,13 @@ wxNotebook* NetPlaySetupFrame::CreateNotebookGUI(wxWindow* parent)
 		wxButton* const connect_btn = new wxButton(connect_tab, wxID_ANY, _("Connect"));
 		connect_btn->Bind(wxEVT_BUTTON, &NetPlaySetupFrame::OnJoin, this);
 
-		wxStaticText* const alert_lbl = new wxStaticText(
+		alert_lbl = new wxStaticText(
 			connect_tab, wxID_ANY,
-			_("ALERT:\n\n"
-				"All players must use the same Dolphin version.\n"
-				"All memory cards, SD cards and cheats must be identical between players or disabled.\n"
-				"If DSP LLE is used, DSP ROMs must be identical between players.\n"
-				"If connecting directly, the host must have the chosen UDP port open/forwarded!\n"
-				"\n"
-				"Wii Remote support in netplay is experimental and should not be expected to work.\n"));
+		                     _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
+		                       "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
+		                       "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
+		                       "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
+		                       "\n"));
 
 		wxBoxSizer* const top_szr = new wxBoxSizer(wxHORIZONTAL);
 		top_szr->Add(m_ip_lbl, 0, wxALIGN_CENTER_VERTICAL);
@@ -251,6 +251,7 @@ wxNotebook* NetPlaySetupFrame::CreateNotebookGUI(wxWindow* parent)
 		m_upnp_chk = new wxCheckBox(host_tab, wxID_ANY, _("Forward port (UPnP)"));
 		top_szr->Add(m_upnp_chk, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, space5);
 #endif
+		//top_szr->Add(alert_lbl, 0, wxALIGN_CENTER_VERTICAL, space5);
 
 		wxBoxSizer* const bottom_szr = new wxBoxSizer(wxHORIZONTAL);
 		bottom_szr->Add(m_traversal_listen_port_enabled, 0, wxALIGN_CENTER_VERTICAL);
@@ -281,12 +282,12 @@ NetPlaySetupFrame::~NetPlaySetupFrame()
 	IniFile::Section& netplay_section = *inifile.GetOrCreateSection("NetPlay");
 
 	std::string travChoice;
-	switch (m_direct_traversal->GetSelection())
+	switch (m_netmode_choice_dropdown->GetSelection())
 	{
-	case TRAVERSAL_CHOICE:
+	case NETMODE_CHOICE_FRIEND_CODE:
 		travChoice = "traversal";
 		break;
-	case DIRECT_CHOICE:
+	case NETMODE_CHOICE_DIRECT_IP:
 		travChoice = "direct";
 		break;
 	}
@@ -294,7 +295,7 @@ NetPlaySetupFrame::~NetPlaySetupFrame()
 	netplay_section.Set("TraversalChoice", travChoice);
 	netplay_section.Set("Nickname", WxStrToStr(m_nickname_text->GetValue()));
 
-	if (m_direct_traversal->GetCurrentSelection() == DIRECT_CHOICE)
+	if (m_netmode_choice_dropdown->GetCurrentSelection() == NETMODE_CHOICE_DIRECT_IP)
 		netplay_section.Set("Address", WxStrToStr(m_connect_ip_text->GetValue()));
 	else
 		netplay_section.Set("HostCode", WxStrToStr(m_connect_hashcode_text->GetValue()));
@@ -333,7 +334,7 @@ void NetPlaySetupFrame::DoHost()
 
 	NetPlayHostConfig host_config;
 	host_config.game_name = WxStrToStr(m_game_lbox->GetStringSelection());
-	host_config.use_traversal = m_direct_traversal->GetCurrentSelection() == TRAVERSAL_CHOICE;
+	host_config.use_traversal = m_netmode_choice_dropdown->GetCurrentSelection() == NETMODE_CHOICE_FRIEND_CODE;
 	host_config.player_name = WxStrToStr(m_nickname_text->GetValue());
 	host_config.game_list_ctrl = m_game_list;
 	host_config.SetDialogInfo(netplay_section, m_parent);
@@ -377,7 +378,7 @@ void NetPlaySetupFrame::DoJoin()
 	IniFile::Section& netplay_section = *inifile.GetOrCreateSection("NetPlay");
 
 	NetPlayJoinConfig join_config;
-	join_config.use_traversal = m_direct_traversal->GetCurrentSelection() == TRAVERSAL_CHOICE;
+	join_config.use_traversal = m_netmode_choice_dropdown->GetCurrentSelection() == NETMODE_CHOICE_FRIEND_CODE;
 	join_config.player_name = WxStrToStr(m_nickname_text->GetValue());
 	join_config.game_list_ctrl = m_game_list;
 	join_config.SetDialogInfo(netplay_section, m_parent);
@@ -421,12 +422,13 @@ void NetPlaySetupFrame::OnTraversalListenPortChanged(wxCommandEvent& event)
 
 void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 {
-	int sel = m_direct_traversal->GetSelection();
+	int sel = m_netmode_choice_dropdown->GetSelection();
 	IniFile inifile;
 	inifile.Load(File::GetUserPath(F_DOLPHINCONFIG_IDX));
 	IniFile::Section& netplay_section = *inifile.GetOrCreateSection("NetPlay");
 
-	if (sel == TRAVERSAL_CHOICE)
+	//Room Code Netmode has been selected
+	if (sel == NETMODE_CHOICE_FRIEND_CODE)
 	{
 		m_traversal_lbl->SetLabelText(m_traversal_string);
 		m_trav_reset_btn->Show();
@@ -438,12 +440,20 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 			m_ip_lbl->SetLabelText("Host Code: ");
 			m_client_port_lbl->Hide();
 			m_connect_port_text->Hide();
+
+			alert_lbl->SetLabelText(
+			_("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
+			 "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
+			"2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
+			"3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
+			      "\n"));
 		}
 
 		// server tab
 		{
 			m_host_port_lbl->Hide();
 			m_host_port_text->Hide();
+		
 			m_traversal_listen_port->Show();
 			m_traversal_listen_port_enabled->Show();
 #ifdef USE_UPNP
@@ -451,7 +461,9 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 #endif
 		}
 	}
-	else
+
+	//Direct IP Netmode has been selected
+	else if (sel == NETMODE_CHOICE_DIRECT_IP)
 	{
 		m_traversal_lbl->SetLabel(wxEmptyString);
 		m_trav_reset_btn->Hide();
@@ -468,11 +480,96 @@ void NetPlaySetupFrame::OnDirectTraversalChoice(wxCommandEvent& event)
 
 			m_client_port_lbl->Show();
 			m_connect_port_text->Show();
+
+			alert_lbl->SetLabelText(
+			    _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
+			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
+			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
+			      "3. The Host must have their port open/forwarded!\n\n"
+			      "4. If DSP LLE is used, DSP ROMs must be identical between players!\n"
+			      "\n"));
 		}
 
 		// Server tab
 		m_traversal_listen_port->Hide();
 		m_traversal_listen_port_enabled->Hide();
+	
+		m_host_port_lbl->Show();
+		m_host_port_text->Show();
+#ifdef USE_UPNP
+		m_upnp_chk->Show();
+#endif
+	}
+
+	//if LAN is selected
+	else if (sel == NETMODE_CHOICE_LAN)
+	{
+		m_traversal_lbl->SetLabel(wxEmptyString);
+		m_trav_reset_btn->Hide();
+		m_connect_hashcode_text->Hide();
+		m_connect_ip_text->Show();
+		// Direct
+		// Client tab
+		{
+			m_ip_lbl->SetLabelText("IP Address :");
+
+			std::string address;
+			netplay_section.Get("Address", &address, "127.0.0.1");
+			m_connect_ip_text->SetLabelText(address);
+
+			m_client_port_lbl->Show();
+			m_connect_port_text->Show();
+
+			alert_lbl->SetLabelText(
+			    _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
+			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
+			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
+			      "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
+			      "\n"));
+		}
+
+		// Server tab
+		m_traversal_listen_port->Hide();
+		m_traversal_listen_port_enabled->Hide();
+		
+		m_host_port_lbl->Show();
+		m_host_port_text->Show();
+#ifdef USE_UPNP
+		m_upnp_chk->Show();
+#endif
+	}
+
+	// if Online Match Making is selected
+	else if (sel == NETMODE_CHOICE_MATCHMAKING)
+	{
+		m_traversal_lbl->SetLabel(wxEmptyString);
+		m_trav_reset_btn->Hide();
+		m_connect_hashcode_text->Hide();
+		m_connect_ip_text->Show();
+		// Direct
+		// Client tab
+		{
+			m_ip_lbl->SetLabelText("IP Address :");
+
+			std::string address;
+			netplay_section.Get("Address", &address, "127.0.0.1");
+			m_connect_ip_text->SetLabelText(address);
+
+			m_client_port_lbl->Show();
+			m_connect_port_text->Show();
+
+			alert_lbl->SetLabelText(
+			    _("-----ALL PLAYERS MUST USE THE SAME VERSION OF KARPHIN-----\n\n"
+			      "1. All Gekko Codes, except full screen and local full screen codes must match!\n\n"
+			      "2. All Player's must use the same version of the Hack Pack or modded ROM!\n\n"
+			      "3. If DSP LLE is used, DSP ROMs must be identical between players!\n"
+			      "\n"));
+		}
+
+		// Server tab
+		m_traversal_listen_port->Hide();
+		m_traversal_listen_port_enabled->Hide();
+		
 		m_host_port_lbl->Show();
 		m_host_port_text->Show();
 #ifdef USE_UPNP
@@ -532,7 +629,7 @@ void NetPlaySetupFrame::DispatchFocus()
 	switch (current_tab)
 	{
 	case CONNECT_TAB:
-		if (m_direct_traversal->GetCurrentSelection() == TRAVERSAL_CHOICE)
+		if (m_netmode_choice_dropdown->GetCurrentSelection() == NETMODE_CHOICE_FRIEND_CODE)
 			m_connect_hashcode_text->SetFocus();
 		else
 			m_connect_ip_text->SetFocus();
