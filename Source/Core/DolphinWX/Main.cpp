@@ -78,6 +78,10 @@ __declspec(dllexport) DWORD NvOptimusEnablement = 1;
 __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #endif
+
+//includes Steam
+#include <steam/steam_api.h>
+
 // ------------
 //  Main window
 
@@ -102,6 +106,9 @@ bool DolphinApp::Initialize(int& c, wxChar** v)
 
 bool DolphinApp::OnInit()
 {
+	//initalizes Steam API
+	SteamAPI_Init();
+
 	std::lock_guard<std::mutex> lk(s_init_mutex);
 	if (!wxApp::OnInit())
 		return false;
@@ -431,6 +438,9 @@ void DolphinApp::OnEndSession(wxCloseEvent& event)
 
 int DolphinApp::OnExit()
 {
+	//deinitalizes Steam API
+	SteamAPI_Shutdown();
+
 	Core::Shutdown();
 	UICommon::Shutdown();
 
